@@ -26,7 +26,7 @@ public class BossShooter : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(StartAfterDelay(3f)); // Delays boss activation
+        StartCoroutine(StartAfterDelay(2f)); // Delays boss activation
     }
 
     private IEnumerator StartAfterDelay(float delay)

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 361f93d275b23bb44a916304f595e25d, type: 3}
+  m_Name: PoisonCloud
+  m_EditorClassIdentifier: 
+  icon: {fileID: 1543192724, guid: 304fbcf9ce800d840bf61851d8d8eba1, type: 3}
+  title: Corruption Field
+  description: Creates a dmaging zone on the players position every couple of seconds.
+  poisonZonePrefab: {fileID: 8301816423668255860, guid: 011c1b9cb60fffb4da94ce3261699191, type: 3}
+  spawnInterval: 3
+  duration: 100000

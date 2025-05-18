@@ -6,7 +6,7 @@ public class ExperienceManager : MonoBehaviour
 {
     [Header("Experience Progression")]
     [SerializeField] int baseExperience = 100;            
-    [SerializeField] float growthFactor = 1.16f;         
+    [SerializeField] float growthFactor = 1.24f;         
 
     public int currentLevel = 1;                         
     [SerializeField] int totalExperience;                
@@ -18,7 +18,8 @@ public class ExperienceManager : MonoBehaviour
     [SerializeField] GameObject[] xpCompletePrefabs;      
 
     [Header("Power-Up System")]
-    [SerializeField] PowerUpManager powerUpManager;       
+    [SerializeField] PowerUpManager powerUpManager;
+    [SerializeField] AudioClip LvlPowerUpAudio;
 
     void Start()
     {
@@ -33,9 +34,11 @@ public class ExperienceManager : MonoBehaviour
 
         int levelsGained = 0;
 
-        // Keep leveling up until all the XP has been used
+        
         while (totalExperience >= nextLevelsExperience)
         {
+            SoundFXManager.Instance.PlaySoundFXClip(LvlPowerUpAudio, transform, 0.6f);
+
             currentLevel++;
             levelsGained++;
             CalculateLevelBoundaries();
@@ -64,14 +67,14 @@ public class ExperienceManager : MonoBehaviour
         int requiredXP = nextLevelsExperience - previousLevelsExperience;
         float fillPerBar = requiredXP / (float)xpSegments.Length;
 
-        // Loop through each segment in the XP bar
+        
         for (int i = 0; i < xpSegments.Length; i++)
         {
             float xpInBar = Mathf.Clamp(gainedXP - (i * fillPerBar), 0, fillPerBar);
             float fillAmount = xpInBar / fillPerBar;
             xpSegments[i].fillAmount = fillAmount;
 
-            // Trigger visual effect when segment full
+            
             if (xpCompletePrefabs != null && i < xpCompletePrefabs.Length && xpCompletePrefabs[i] != null)
             {
                 bool shouldBeActive = fillAmount >= 1f;
@@ -89,7 +92,7 @@ public class ExperienceManager : MonoBehaviour
         float totalXP = 0f;
         for (int i = 1; i < level; i++)
         {
-            totalXP += baseExperience * Mathf.Pow(growthFactor, i - 1); // Exponential growth in XP
+            totalXP += baseExperience * Mathf.Pow(growthFactor, i - 1); 
         }
         return Mathf.FloorToInt(totalXP);
     }

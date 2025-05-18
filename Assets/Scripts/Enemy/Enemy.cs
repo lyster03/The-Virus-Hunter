@@ -161,10 +161,9 @@ public class Enemy : MonoBehaviour
 
     IEnumerator FlashAndScale()
     {
-        spriteRenderer.color = Color.white;
+        
         transform.localScale = originalScale * 1.2f;
         yield return new WaitForSeconds(0.1f);
-        spriteRenderer.color = originalColor;
         transform.localScale = originalScale;
     }
 
@@ -181,11 +180,6 @@ public class Enemy : MonoBehaviour
         experienceManager?.AddExperience(xp);
         shooting?.AddEnergy(10f);
 
-        if (soulParticlePrefab != null && player != null)
-        {
-            GameObject soul = Instantiate(soulParticlePrefab, transform.position, Quaternion.identity);
-            soul.GetComponent<SoulFollow>()?.SetTarget(player.transform);
-        }
 
         if (deathEffect != null)
         {

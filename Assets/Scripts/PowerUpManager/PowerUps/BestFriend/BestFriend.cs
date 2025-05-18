@@ -7,6 +7,7 @@ public class PetPowerUp : PowerUp
 
     public override void Apply(GameObject player)
     {
+        
         if (GameObject.FindWithTag("Pet") != null) return;
 
         GameObject pet = GameObject.Instantiate(petPrefab);

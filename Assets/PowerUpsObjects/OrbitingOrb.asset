@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e74ac8217e2dd4597e40ff1988c676, type: 3}
+  m_Name: OrbitingOrb
+  m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 774d597496154774aa8e774df45c8a73, type: 3}
+  title: 'AxionRing  '
+  description: Creates a damaging orb that moves in a ring pattern around you.
+  orbPrefab: {fileID: 1452803162244211522, guid: 335409f2f79f1194d9bd2d4e11b895a4, type: 3}

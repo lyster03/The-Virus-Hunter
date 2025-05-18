@@ -31,7 +31,7 @@ public class WaveSpawnerV2 : MonoBehaviour
     [Header("Events")]
     public UnityEvent OnWaveCompleted;
 
-    // Enemy Buffs
+    
     private int walkerExtraHP = 0;
     private float walkerExtraSpeed = 0f;
     private int pistoleroExtraHP = 0;
@@ -143,7 +143,7 @@ public class WaveSpawnerV2 : MonoBehaviour
                 currentWaveIndex++;
                 currentWave = waves[currentWaveIndex];
 
-                CheckForBuffs(currentWaveIndex + 1);
+                
                 StartCoroutine(BeginNextWaveWithDelay(currentWave.TimeBeforeThisWave));
             }
             else
@@ -161,21 +161,7 @@ public class WaveSpawnerV2 : MonoBehaviour
         }
     }
 
-    // Apply buffs to enemies at certain waves
-    private void CheckForBuffs(int waveNumber)
-    {
-        if (waveNumber == 5 || waveNumber == 10 || waveNumber == 14)
-        {
-            walkerExtraHP += 1;
-            walkerExtraSpeed += 1f;
-            pistoleroExtraHP += 1;
-            pistoleroExtraSpeed += 1f;
-            tankExtraHP += 2;
-            tankExtraSpeed += 1f;
-
-            Debug.Log($"Buffs applied at wave {waveNumber}");
-        }
-    }
+   
 
     // Start the next wave after a delay
     private IEnumerator BeginNextWaveWithDelay(float delay)
@@ -250,7 +236,7 @@ public class WaveSpawnerV2 : MonoBehaviour
             {
                 enemyComponent.SetCastle(castle);
                 enemyComponent.SetSpawner(this);
-                ApplyBuffs(enemyComponent, currentWave.EnemyTypes[index].prefab);
+              
             }
         }
         else
@@ -259,25 +245,8 @@ public class WaveSpawnerV2 : MonoBehaviour
         }
     }
 
-    // Apply buffs to the enemy based on its type
-    private void ApplyBuffs(Enemy enemyComponent, GameObject prefab)
-    {
-        if (prefab == walkerPrefab)
-        {
-            enemyComponent.enemyHealth += walkerExtraHP;
-            enemyComponent.moveSpeed += walkerExtraSpeed;
-        }
-        else if (prefab == pistoleroPrefab)
-        {
-            enemyComponent.enemyHealth += pistoleroExtraHP;
-            enemyComponent.moveSpeed += pistoleroExtraSpeed;
-        }
-        else if (prefab == tankPrefab)
-        {
-            enemyComponent.enemyHealth += tankExtraHP;
-            enemyComponent.moveSpeed += tankExtraSpeed;
-        }
-    }
+   
+   
 
     // Shuffle the spawn points for randomness
     private List<Transform> GetShuffledSpawnPoints()

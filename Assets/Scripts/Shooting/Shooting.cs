@@ -59,6 +59,9 @@ public class Shooting : MonoBehaviour
 
     public event System.Action OnShoot;
 
+    private MouseClickSound clickSoundScript;
+
+
     // Initialize energy and UI elements at the start
     void Start()
     {
@@ -74,6 +77,8 @@ public class Shooting : MonoBehaviour
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
+
+        clickSoundScript = FindObjectOfType<MouseClickSound>();
     }
 
     // Handle shooting, energy regeneration, and energy UI update
@@ -81,6 +86,9 @@ public class Shooting : MonoBehaviour
     {
         if (!PauseMenu.isPaused)
         {
+            if (clickSoundScript != null)
+                clickSoundScript.isShooting = Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentEnergy >= energyCostPerShot;
+
             HandleShooting();
             HandleEnergyRegen();
             UpdateEnergyUI();
@@ -248,19 +256,19 @@ public class Shooting : MonoBehaviour
         screenFlash.gameObject.SetActive(false);
     }
 
-    // Enable double shot mode
+    
     public void EnableDoubleShot() => isDoubleShot = true;
 
-    // Enable burst fire mode
+    
     public void EnableBurstFire() => isBurstFire = true;
 
-    // Set burst fire delay
+    
     public void SetBurstDelay(float delay) => burstDelay = delay;
 
-    // Set burst fire cooldown
+   
     public void SetBurstCooldown(float cooldown) => burstCooldown = cooldown;
 
-    // Add energy to the player
+    
     public void AddEnergy(float amount)
     {
         if (isOverclocking) return;

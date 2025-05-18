@@ -15,7 +15,7 @@ public class PlayerHealth : MonoBehaviour
     public int damageTaken = 1;
 
     public GameObject deathScreen;
-    public AudioSource deathSound;
+    public AudioClip deathSound;
     public AudioClip hurtSound;
 
     public UnityEvent OnHealthChanged;
@@ -25,14 +25,19 @@ public class PlayerHealth : MonoBehaviour
 
     private bool isDying = false;
 
-    // Initializes maxHP and currentHP
+    private ShieldController shieldController;
+
+    [Header("Death Animation")]
+    [SerializeField] private GameObject deathAnimationObject;
+    [SerializeField] private string deathAnimationTrigger = "Play";
+
     void Awake()
     {
         maxHP = maxHearts * 2;
         currentHP = maxHP;
+        shieldController = GetComponent<ShieldController>();
     }
 
-    // Checks if the player has died and triggers death process
     void Update()
     {
         if (currentHP <= 0 && !isDying)
@@ -41,18 +46,12 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    // Adds health to the player, ensuring it doesn't exceed maxHP
     public void AddHealth(int halfHearts = 1)
     {
-        currentHP += halfHearts;
-
-        if (currentHP > maxHP)
-            currentHP = maxHP;
-
+        currentHP = Mathf.Min(currentHP + halfHearts, maxHP);
         OnHealthChanged.Invoke();
     }
 
-    // Handles collision with enemies and applies damage if cooldown has passed
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Enemy") && Time.time - lastDamageTime >= damageCooldown)
@@ -61,7 +60,6 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    // Handles staying in collision with enemies and applies damage if cooldown has passed
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Enemy") && Time.time - lastDamageTime >= damageCooldown)
@@ -70,31 +68,47 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    // Reduces the player's health by the given amount
     public void TakeDamage(int amount)
     {
         if (isDying) return;
+
+        if (shieldController != null && shieldController.TryNegateDamage(gameObject))
+        {
+            lastDamageTime = Time.time;
+            return;
+        }
+
         currentHP = Mathf.Max(currentHP - amount, 0);
         lastDamageTime = Time.time;
         OnHealthChanged.Invoke();
 
-        SoundFXManager.Instance.PlaySoundFXClip(hurtSound, transform, 5f);
+        SoundFXManager.Instance?.PlaySoundFXClip(hurtSound, transform, 5f);
         CinemachineShake.Instance?.ShakeCamera(15f, 0.2f);
     }
 
-    // Handles the death of the player
     void YouDied()
     {
         isDying = true;
+        
 
-        Time.timeScale = 0.2f;
-
+        
         if (deathSound != null)
-            deathSound.Play();
+            SoundFXManager.Instance.PlaySoundFXClip(deathSound, transform, 1f);
 
-        if (deathScreen != null)
-            deathScreen.SetActive(true);
+       
+        if (deathAnimationObject != null)
+        {
+            deathAnimationObject.SetActive(true);
+            Animator animator = deathAnimationObject.GetComponent<Animator>();
+            if (animator != null && !string.IsNullOrEmpty(deathAnimationTrigger))
+            {
+                animator.SetTrigger(deathAnimationTrigger);
+            }
+        }
 
+        
+
+        // Disable visuals & collisions
         foreach (var renderer in GetComponentsInChildren<Renderer>())
             renderer.enabled = false;
 
@@ -102,19 +116,16 @@ public class PlayerHealth : MonoBehaviour
             collider.enabled = false;
 
         StartCoroutine(DelayedSceneChange());
-
         this.enabled = false;
     }
 
-    // Delays the scene change to the main menu after a short period
     public IEnumerator DelayedSceneChange()
     {
-        yield return new WaitForSecondsRealtime(5f);
+        yield return new WaitForSecondsRealtime(1f);
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
 
-    // Increases the player's max hearts and optionally heals to full
     public void IncreaseMaxHearts(int hearts = 1, bool healToFull = false)
     {
         maxHearts += hearts;
