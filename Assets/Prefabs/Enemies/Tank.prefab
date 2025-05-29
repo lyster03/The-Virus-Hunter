@@ -5109,6 +5109,10 @@ PrefabInstance:
       value: 1024
       objectReference: {fileID: 0}
     - target: {fileID: 6880025812786405285, guid: e4e35f0864b0b9e46a867b8acf33729b, type: 3}
+      propertyPath: playerCheckInterval
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6880025812786405285, guid: e4e35f0864b0b9e46a867b8acf33729b, type: 3}
       propertyPath: hurtSounds.Array.size
       value: 3
       objectReference: {fileID: 0}

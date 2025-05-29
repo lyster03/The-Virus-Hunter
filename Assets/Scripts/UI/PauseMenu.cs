@@ -8,7 +8,7 @@ public class PauseMenu : MonoBehaviour
     public static bool isPaused;
 
     [Header("Transition Animation")]
-    public GameObject transitionObject; // Reference to object already in the scene
+    public GameObject transitionObject;
     public float transitionDuration = 2f;
 
     void Start()
@@ -17,7 +17,7 @@ public class PauseMenu : MonoBehaviour
         isPaused = false;
 
         if (transitionObject != null)
-            transitionObject.SetActive(false); // Hide it at start
+            transitionObject.SetActive(false);
     }
 
     void Update()

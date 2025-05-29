@@ -54,7 +54,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _EnableExternalAlpha: 0
-    - _GlowAmount: 6.38
+    - _GlowAmount: 0.56
     m_Colors:
     - _Color: {r: 0.07705776, g: 1.5885366, b: 0, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}

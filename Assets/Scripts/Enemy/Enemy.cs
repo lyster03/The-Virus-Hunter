@@ -43,7 +43,7 @@ public class Enemy : MonoBehaviour
     private Color originalColor;
     private Vector3 originalScale;
 
-    private bool isDead = false;
+    protected bool isDead = false;
     private float lastPlayerCheckTime;
     private bool hasDamagedCastle = false;
 
@@ -169,7 +169,7 @@ public class Enemy : MonoBehaviour
 
     public bool IsDead() => isDead;
 
-    void Die()
+    protected virtual void Die()
     {
         if (isDead) return;
         isDead = true;
@@ -190,6 +190,8 @@ public class Enemy : MonoBehaviour
         waveSpawner?.EnemyDied(gameObject);
         CinemachineShake.Instance?.ShakeCamera(13f, 0.2f);
         SoundFXManager.Instance.PlaySoundFXClip(death, transform, 1f);
+        
+        GetComponent<SpawnOnEnemyDeath>()?.NotifyDeath();
 
         Destroy(gameObject);
     }

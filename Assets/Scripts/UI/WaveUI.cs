@@ -6,27 +6,28 @@ public class WaveUI : MonoBehaviour
 {
     [Header("Wave Text Settings")]
     [SerializeField] private Text waveText;
-    [SerializeField] private CanvasGroup canvasGroup; 
-    [SerializeField] private Vector2 moveOffset = new Vector2(0, 50f); 
+    [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private Vector2 moveOffset = new Vector2(0, 50f);
 
     [Header("Permanent UI")]
-    [SerializeField] private Text permanentWaveText; 
+    [SerializeField] private Text permanentWaveText;
 
     [Header("Audio Settings")]
-    [SerializeField] private AudioSource audioSource; 
-    [SerializeField] private float audioStartTime = 13f; 
-    [SerializeField] private float audioFadeDuration = 1f; 
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private float audioStartTime = 13f;
+    [SerializeField] private float audioFadeDuration = 1f;
 
     private RectTransform rectTransform;
-    private Vector2 originalPosition; 
+    private Vector2 originalPosition;
 
-    [SerializeField] private float fadeInDuration = 2f; 
-    [SerializeField] private float holdDuration = 1f; 
-    [SerializeField] private float fadeOutDuration = 2f; 
+    [SerializeField] private float fadeInDuration = 2f;
+    [SerializeField] private float holdDuration = 1f;
+    [SerializeField] private float fadeOutDuration = 2f;
 
-    private int currentWaveNumber = 0; 
+    private int currentWaveNumber = 0;
 
-    // Called when the object is initialized
+    private WaveSpawnerV2 waveSpawner;
+
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -39,7 +40,27 @@ public class WaveUI : MonoBehaviour
             permanentWaveText.text = "Wave 0";
     }
 
-    // Shows the wave number with animation
+    private void Start()
+    {
+        waveSpawner = FindObjectOfType<WaveSpawnerV2>();
+        if (waveSpawner == null)
+        {
+            Debug.LogWarning("WaveSpawnerV2 not found in the scene.");
+        }
+    }
+
+    private void Update()
+    {
+        if (waveSpawner != null && waveSpawner.HasCompletedAllWaves())
+        {
+            if (permanentWaveText != null && permanentWaveText.text != "BOSS")
+            {
+                permanentWaveText.text = "BOSS";
+                Debug.Log("All waves completed. Showing BOSS in permanent wave text.");
+            }
+        }
+    }
+
     public void ShowWave(int waveNumber)
     {
         currentWaveNumber = waveNumber;
@@ -47,7 +68,6 @@ public class WaveUI : MonoBehaviour
         StartCoroutine(PlayWaveAnimationWithAudio());
     }
 
-    // Handles the wave animation (fade-in, hold, fade-out) and audio syncing
     private IEnumerator PlayWaveAnimationWithAudio()
     {
         float totalAnimDuration = fadeInDuration + holdDuration + fadeOutDuration;
@@ -103,11 +123,12 @@ public class WaveUI : MonoBehaviour
 
         if (permanentWaveText != null)
         {
-            permanentWaveText.text = $"Wave {currentWaveNumber}";
+            permanentWaveText.text = waveSpawner != null && waveSpawner.HasCompletedAllWaves()
+                ? "  BOSS"
+                : $"Wave {currentWaveNumber}";
         }
     }
 
-    // Gradually fades in the audio over the given duration
     private IEnumerator FadeInAudio(float duration)
     {
         float timer = 0f;
@@ -120,7 +141,6 @@ public class WaveUI : MonoBehaviour
         audioSource.volume = 1f;
     }
 
-    // Gradually fades out the audio over the given duration after a delay
     private IEnumerator FadeOutAudio(float duration, float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -135,7 +155,6 @@ public class WaveUI : MonoBehaviour
         audioSource.volume = 0f;
     }
 
-    // Stops the audio after the specified delay
     private IEnumerator StopAudioAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);

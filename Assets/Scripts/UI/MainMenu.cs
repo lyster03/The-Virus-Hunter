@@ -4,10 +4,19 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    public GameObject transitionImage; // The UI image with the animation
-    public Animator animator; // Animator component on that image
-    public string transitionTrigger = "Play"; // Trigger name in Animator
-    public float transitionDuration = 1f; // How long the animation lasts
+    public GameObject transitionImage; 
+    public Animator animator;
+    public string transitionTrigger = "Play"; 
+    public float transitionDuration = 1f;
+
+    public void Start()
+    {
+        if (!PlayerPrefs.HasKey("Level2Unlocked"))
+        {
+            PlayerPrefs.SetInt("Level2Unlocked", 0);
+            PlayerPrefs.Save();
+        }
+    }
 
     public void ExitButton()
     {
@@ -31,9 +40,6 @@ public class MainMenu : MonoBehaviour
             animator.SetTrigger(transitionTrigger);
         yield return new WaitForSeconds(0.7f);
         SceneManager.LoadScene("GamePlayScene");
-       
 
-        
-       
     }
 }

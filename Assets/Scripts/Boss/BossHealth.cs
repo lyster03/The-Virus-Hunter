@@ -50,7 +50,7 @@ public class BossHealth : MonoBehaviour
 
     private void Update()
     {
-        // Smooth transition of yellow slider after taking damage
+        
         if (tookDamage)
         {
             yellowTimer -= Time.unscaledDeltaTime;
@@ -65,7 +65,7 @@ public class BossHealth : MonoBehaviour
             }
         }
 
-        // Trigger death if health reaches zero
+       
         if (!isDead && currentHealth <= 0f)
         {
             isDead = true;
@@ -99,17 +99,17 @@ public class BossHealth : MonoBehaviour
 
     private void Die()
     {
-        // Play death sound
+        
         SoundFXManager.Instance.PlaySoundFXClip(deathClip, transform, 1f);
 
-        // Hide health bar UI
+        
         if (healthBarUI != null)
             healthBarUI.SetActive(false);
 
-        // Move boss out of view
+        
         transform.position = new Vector3(9999, 9999, 9999);
 
-        // Disable visuals and collisions
+        
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         foreach (Renderer rend in renderers)
         {
@@ -122,13 +122,17 @@ public class BossHealth : MonoBehaviour
             col.enabled = false;
         }
 
-        // Begin scene transition sequence
+       
         StartCoroutine(HandlePostDeathSequence());
     }
 
     private IEnumerator HandlePostDeathSequence()
     {
         yield return new WaitForSeconds(2f);
+
+        
+        PlayerPrefs.SetInt("Level2Unlocked", 1); 
+        PlayerPrefs.Save();
 
         if (endAnimationObject != null)
             endAnimationObject.SetActive(true);

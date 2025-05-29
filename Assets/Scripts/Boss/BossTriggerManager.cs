@@ -58,7 +58,7 @@ public class BossTriggerManager : MonoBehaviour
             bossIntroAnimator.SetTrigger(bossIntroTrigger);
         }
 
-        yield return new WaitForSeconds(1f); // Slight delay before boss appears
+        yield return new WaitForSeconds(1f); 
 
         TriggerBossPhase();
     }
@@ -82,5 +82,7 @@ public class BossTriggerManager : MonoBehaviour
 
         if (playerTransform != null)
             playerTransform.position = playerBossPosition;
+        bossIntroUI.SetActive(false);
+
     }
 }

@@ -20,18 +20,19 @@ public class WaveSpawnerV2 : MonoBehaviour
     [Header("Wave UI")]
     [SerializeField] private WaveUI waveUI;
     [SerializeField] private float waveAnimationDuration = 2f;
+    public static int LastWaveIndex = 0;
 
     private bool stopSpawning = false;
     private bool waveInProgress = false;
     private bool isSpawningEnemies = false;
     private bool boundsSwitched = false;
+    private bool checkingWaveCompletion = false; // ✅ Added flag to prevent duplicate checks
 
     private List<GameObject> aliveEnemies = new List<GameObject>();
 
     [Header("Events")]
     public UnityEvent OnWaveCompleted;
 
-    
     private int walkerExtraHP = 0;
     private float walkerExtraSpeed = 0f;
     private int pistoleroExtraHP = 0;
@@ -63,7 +64,9 @@ public class WaveSpawnerV2 : MonoBehaviour
 
     public AudioClip crackSound;
 
-    // Initialize important references and settings for waves
+    [Header("Delay Settings")]
+    [SerializeField] private float checkAliveDelay = 0.5f; // ✅ Delay added here
+
     private void Awake()
     {
         if (waves.Length == 0)
@@ -88,7 +91,6 @@ public class WaveSpawnerV2 : MonoBehaviour
         }
     }
 
-    // Start the wave sequence based on the debug setting or default wave order
     private void Start()
     {
         if (debugStartWaveIndex >= 0 && debugStartWaveIndex < waves.Length)
@@ -101,7 +103,6 @@ public class WaveSpawnerV2 : MonoBehaviour
         StartCoroutine(BeginNextWaveWithDelay(currentWave.TimeBeforeThisWave));
     }
 
-    // Update each frame to manage enemy spawning and wave completion
     private void Update()
     {
         if (killAllEnemies)
@@ -112,7 +113,6 @@ public class WaveSpawnerV2 : MonoBehaviour
 
         if (stopSpawning || !waveInProgress || isSpawningEnemies) return;
 
-        // Check player health and stop spawning if player is dead
         if (player != null)
         {
             var health = player.GetComponent<PlayerHealth>();
@@ -126,11 +126,23 @@ public class WaveSpawnerV2 : MonoBehaviour
 
         aliveEnemies.RemoveAll(e => e == null);
 
-        // If all enemies are dead, complete the wave and move to the next one
+        if (aliveEnemies.Count == 0 && !checkingWaveCompletion)
+        {
+            StartCoroutine(CheckWaveCompletionWithDelay()); // ✅ Delayed check
+        }
+    }
+
+    private IEnumerator CheckWaveCompletionWithDelay()
+    {
+        checkingWaveCompletion = true;
+        yield return new WaitForSeconds(checkAliveDelay);
+
+        aliveEnemies.RemoveAll(e => e == null);
         if (aliveEnemies.Count == 0)
         {
             waveInProgress = false;
             OnWaveCompleted?.Invoke();
+            LastWaveIndex = currentWaveIndex + 1;
 
             if ((currentWaveIndex + 1) >= crackStartWave &&
                 ((currentWaveIndex + 1 - crackStartWave) % crackFrequency == 0))
@@ -143,7 +155,6 @@ public class WaveSpawnerV2 : MonoBehaviour
                 currentWaveIndex++;
                 currentWave = waves[currentWaveIndex];
 
-                
                 StartCoroutine(BeginNextWaveWithDelay(currentWave.TimeBeforeThisWave));
             }
             else
@@ -159,11 +170,10 @@ public class WaveSpawnerV2 : MonoBehaviour
                 }
             }
         }
+
+        checkingWaveCompletion = false;
     }
 
-   
-
-    // Start the next wave after a delay
     private IEnumerator BeginNextWaveWithDelay(float delay)
     {
         Debug.Log($"Wave {currentWaveIndex + 1} starting in {delay} seconds...");
@@ -181,7 +191,6 @@ public class WaveSpawnerV2 : MonoBehaviour
         SpawnWave();
     }
 
-    // Spawn the enemies for the current wave
     private void SpawnWave()
     {
         isSpawningEnemies = true;
@@ -203,7 +212,6 @@ public class WaveSpawnerV2 : MonoBehaviour
         }
     }
 
-    // Spawn a specific type of enemy with a delay between each spawn
     private IEnumerator SpawnEnemyTypeWithDelay(int index, List<Transform> spawnPoints, System.Action onComplete)
     {
         int numToSpawn = Mathf.RoundToInt(currentWave.NumberTypesToSpawn[index]);
@@ -212,13 +220,12 @@ public class WaveSpawnerV2 : MonoBehaviour
         {
             int spawnIndex = i % spawnPoints.Count;
             SpawnEnemy(index, spawnPoints[spawnIndex]);
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.1f);
         }
 
         onComplete?.Invoke();
     }
 
-    // Instantiate an enemy at a spawn point
     private void SpawnEnemy(int index, Transform spawnPoint)
     {
         if (currentWave.EnemyTypes[index] != null)
@@ -236,7 +243,6 @@ public class WaveSpawnerV2 : MonoBehaviour
             {
                 enemyComponent.SetCastle(castle);
                 enemyComponent.SetSpawner(this);
-              
             }
         }
         else
@@ -245,30 +251,11 @@ public class WaveSpawnerV2 : MonoBehaviour
         }
     }
 
-   
-   
-
-    // Shuffle the spawn points for randomness
-    private List<Transform> GetShuffledSpawnPoints()
-    {
-        List<Transform> shuffled = new List<Transform>(spawnpoints);
-        for (int i = 0; i < shuffled.Count; i++)
-        {
-            Transform temp = shuffled[i];
-            int randomIndex = Random.Range(i, shuffled.Count);
-            shuffled[i] = shuffled[randomIndex];
-            shuffled[randomIndex] = temp;
-        }
-        return shuffled;
-    }
-
-    // Called when an enemy dies to remove it from the alive list
     public void EnemyDied(GameObject enemy)
     {
         aliveEnemies.Remove(enemy);
     }
 
-    // Kill all currently spawned enemies
     public void KillAllEnemies()
     {
         foreach (GameObject enemy in aliveEnemies)
@@ -282,13 +269,11 @@ public class WaveSpawnerV2 : MonoBehaviour
         Debug.Log("All enemies killed.");
     }
 
-    // Check if all waves are completed
     public bool HasCompletedAllWaves()
     {
         return stopSpawning && currentWaveIndex >= waves.Length - 1;
     }
 
-    // Shake the camera and activate crack effects
     private IEnumerator ShakeAndActivateCracks()
     {
         SoundFXManager.Instance.PlaySoundFXClip(crackSound, transform, 1f);
@@ -300,7 +285,6 @@ public class WaveSpawnerV2 : MonoBehaviour
         CinemachineShake.Instance?.ShakeCamera(40f, 1f);
     }
 
-    // Flash the screen to indicate a crack event
     private IEnumerator FlashScreen()
     {
         if (flashImage == null) yield break;
@@ -320,7 +304,6 @@ public class WaveSpawnerV2 : MonoBehaviour
             objectToToggleDuringBlackScreen.SetActive(true);
     }
 
-    // Activate random cracks in the scene for dramatic effect
     private void ActivateRandomCracks()
     {
         int cracksToActivate = Random.Range(3, 6);
@@ -335,4 +318,27 @@ public class WaveSpawnerV2 : MonoBehaviour
         }
         Debug.Log($"Activated {cracksToActivate} crack(s).");
     }
+
+    private List<Transform> GetShuffledSpawnPoints()
+    {
+        List<Transform> shuffled = new List<Transform>(spawnpoints);
+        for (int i = 0; i < shuffled.Count; i++)
+        {
+            Transform temp = shuffled[i];
+            int randomIndex = Random.Range(i, shuffled.Count);
+            shuffled[i] = shuffled[randomIndex];
+            shuffled[randomIndex] = temp;
+        }
+        return shuffled;
+    }
+
+    public void EnemySpawned(GameObject enemy)
+    {
+        if (enemy != null && !aliveEnemies.Contains(enemy))
+        {
+            aliveEnemies.Add(enemy);
+        }
+    }
+
+
 }

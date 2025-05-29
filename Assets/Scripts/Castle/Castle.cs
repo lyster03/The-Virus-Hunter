@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Castle : MonoBehaviour
 {
@@ -17,7 +16,7 @@ public class Castle : MonoBehaviour
     public AudioClip deathSound;
     public HealthBarUI castleHealthBar;
 
-    [Header("Death Animation (Optional)")]
+    [Header("Death Animation")]
     [SerializeField] private GameObject deathAnimationObject;
     [SerializeField] private string deathAnimationTrigger = "Play";
 
@@ -73,7 +72,6 @@ public class Castle : MonoBehaviour
     void YouDied()
     {
         isDying = true;
-        
 
         if (deathSound != null)
             SoundFXManager.Instance?.PlaySoundFXClip(deathSound, transform, 1f);
@@ -96,13 +94,15 @@ public class Castle : MonoBehaviour
 
         this.enabled = false;
 
-        StartCoroutine(LoadMainMenuAfterDelay(1f));
+        StartCoroutine(DelayedGameOver());
     }
 
-    private IEnumerator LoadMainMenuAfterDelay(float delay)
+    private IEnumerator DelayedGameOver()
     {
-        yield return new WaitForSecondsRealtime(delay);
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenu");
+        yield return new WaitForSecondsRealtime(1f);
+        Time.timeScale = 0f;
+
+        if (deathScreen != null)
+            deathScreen.SetActive(true);
     }
 }

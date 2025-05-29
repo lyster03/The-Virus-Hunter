@@ -107,23 +107,23 @@ public class PlayerHealth : MonoBehaviour
         }
 
         
-
-        // Disable visuals & collisions
         foreach (var renderer in GetComponentsInChildren<Renderer>())
             renderer.enabled = false;
 
         foreach (var collider in GetComponentsInChildren<Collider2D>())
             collider.enabled = false;
+        GetComponent<Shooting>().enabled = false;
 
         StartCoroutine(DelayedSceneChange());
+       
         this.enabled = false;
     }
 
     public IEnumerator DelayedSceneChange()
     {
         yield return new WaitForSecondsRealtime(1f);
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenu");
+        Time.timeScale = 0;
+        deathScreen.SetActive(true); 
     }
 
     public void IncreaseMaxHearts(int hearts = 1, bool healToFull = false)
